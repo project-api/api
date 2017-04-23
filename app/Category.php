@@ -10,7 +10,6 @@ class Category extends Model
   protected $primaryKey = 'id';
   protected $fillable = array(
     'name',
-    'quatity',
     'description',
     'created_at',
     'updated_at'

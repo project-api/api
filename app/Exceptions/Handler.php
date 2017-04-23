@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Exception;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\Debug\Exception\FlattenException;
 
 class Handler extends ExceptionHandler
 {
@@ -42,10 +43,33 @@ class Handler extends ExceptionHandler
      * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Exception $exception)
-    {
-        return parent::render($request, $exception);
-    }
+     public function render($request, Exception $e)
+     {
+        $exception = FlattenException::create($e);
+        $statusCode = $exception->getStatusCode($exception);
+        if(strpos(get_class($e), "ModelNotFoundException")>0){
+          $statusCode = 404;
+        }
+        switch($statusCode){
+          case 404:
+            $message =  "Not Found";
+            break;
+          case 400:
+            $message = "Bad Request";
+            break;
+          case 405:
+            $message = "Method Not Allowed";
+            break;
+          default:
+            $message = "Internal Server Error";
+        }
+        $data = array(
+          'error' => $message,
+          'status' => $statusCode,
+          //'exeception' => get_class($e)
+        );
+        return response()->json($data);
+      }
 
     /**
      * Convert an authentication exception into an unauthenticated response.

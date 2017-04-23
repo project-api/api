@@ -58,20 +58,19 @@ class CategoryController extends Controller
     {
       // Validate
       $validator = Validator::make($request->all(), [
-        'name' => 'required|max:255',
+        'name' => 'required|max:255|unique:categories',
         'quatity' => 'required|integer'
       ]);
 
       // if error
       if ($validator->fails()) {
-       return response(array('error' => $validator));
+       return response(array(
+         'error' => $validator,
+         'input' => $request,
+       ));
       } else {
         // Store the category
-       $cat = new Category;
-       $cat->name = $request->name;
-       $cat->quatity = $request->quatity;
-       $cat->description = $request->description;
-       $cat->save();
+       Category::create($request->all());
        return response(array(
          'status' => 201,
          'message' => 'Created'
@@ -120,9 +119,35 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
-        //
+      // Validate
+      $validator = Validator::make($request->all(), [
+        'name' => 'required|max:255',
+        'quatity' => 'required|integer'
+      ]);
+
+      // if error
+      if ($validator->fails()) {
+       return response(array(
+         'error' => $validator,
+         'input' => $request,
+       ));
+      } else {
+        // Update the category
+       $cat = Category::find($id);
+       $cat->name = $request->name;
+       $cat->quatity = $request->quatity;
+       if(isset($request->description)) {
+         $cat->description = $request->description;
+       }
+       $cat->updated_at = date('Y-m-d H:i:s');
+       $cat->save();
+       return response(array(
+         'status' => 200,
+         'message' => 'OK'
+       ));
+      }
     }
 
     /**
@@ -131,7 +156,7 @@ class CategoryController extends Controller
      * @param  \App\Category  $category
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Category $category)
+    public function destroy($id)
     {
         //
     }

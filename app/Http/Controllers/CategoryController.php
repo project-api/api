@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Validator;
 use App\Category;
 use Illuminate\Http\Request;
-use Illuminate\Database\QueryException;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+
 class CategoryController extends Controller
 {
     /**
@@ -56,7 +56,28 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+      // Validate
+      $validator = Validator::make($request->all(), [
+        'name' => 'required|max:255',
+        'quatity' => 'required|integer'
+      ]);
+
+      // if error
+      if ($validator->fails()) {
+       return response(array('error' => $validator));
+      } else {
+        // Store the category
+       $cat = new Category;
+       $cat->name = $request->name;
+       $cat->quatity = $request->quatity;
+       $cat->description = $request->description;
+       $cat->save();
+       return response(array(
+         'status' => 201,
+         'message' => 'Created'
+       ));
+      }
+
     }
 
     /**

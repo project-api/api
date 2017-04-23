@@ -31,6 +31,7 @@ class CategoryController extends Controller
         return response(array(
           'meta' => [
             'status' => 200,
+            'total' => $cats->total(),
             'total-pages' => round($cats->total()/$cats->perPage()),
             'per-page' => $cats->perPage(),
             'count' => $cats->count()
@@ -141,11 +142,12 @@ class CategoryController extends Controller
        if(isset($request->description)) {
          $cat->description = $request->description;
        }
-       $cat->updated_at = date('Y-m-d H:i:s');
+       $cat->updated_at = strtotime(date('Y-m-d H:i:s'));
        $cat->save();
        return response(array(
          'status' => 200,
-         'message' => 'OK'
+         'message' => 'OK',
+         'updated_at' => date('Y-m-d H:i:s')
        ));
       }
     }
@@ -158,6 +160,13 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // delete
+        $cat = Category::find($id);
+        $cat->delete();
+
+        return response(array(
+          'status' => 200,
+          'message' => 'Deleted'
+        ));
     }
 }

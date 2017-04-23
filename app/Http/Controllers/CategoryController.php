@@ -147,7 +147,7 @@ class CategoryController extends Controller
        return response(array(
          'status' => 200,
          'message' => 'OK',
-         'updated_at' => date('Y-m-d H:i:s')
+         'updated_at' => date('Y-m-d\TH:i:s.u\Z')
        ));
       }
     }

@@ -23,7 +23,7 @@ class CategoryController extends Controller
           $created = date('Y-m-d\TH:i:s.u\Z', $created);
           $cats_array['data'][$key]['created_at'] = $created;
 
-          $updated = strtotime($value['created_at']);
+          $updated = strtotime($value['updated_at']);
           $updated = date('Y-m-d\TH:i:s.u\Z', $updated);
           $cats_array['data'][$key]['updated_at'] = $updated;
         }
@@ -60,7 +60,6 @@ class CategoryController extends Controller
       // Validate
       $validator = Validator::make($request->all(), [
         'name' => 'required|max:255|unique:categories',
-        'quatity' => 'required|integer'
       ]);
 
       // if error
@@ -125,7 +124,6 @@ class CategoryController extends Controller
       // Validate
       $validator = Validator::make($request->all(), [
         'name' => 'required|max:255',
-        'quatity' => 'required|integer'
       ]);
 
       // if error
@@ -138,7 +136,6 @@ class CategoryController extends Controller
         // Update the category
        $cat = Category::find($id);
        $cat->name = $request->name;
-       $cat->quatity = $request->quatity;
        if(isset($request->description)) {
          $cat->description = $request->description;
        }

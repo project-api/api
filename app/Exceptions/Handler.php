@@ -66,7 +66,7 @@ class Handler extends ExceptionHandler
         $data = array(
           'error' => $message,
           'status' => $statusCode,
-          //'exeception' => get_class($e)
+          'exeception' => get_class($e)
         );
         return response()->json($data);
       }

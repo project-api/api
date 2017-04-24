@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Validator;
 use App\Category;
+use App\Product;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
@@ -89,6 +90,26 @@ class CategoryController extends Controller
     {
         //GET
         $cat = Category::findOrFail($id);
+        $products = $cat->products;
+        foreach ($products as $key => $value) {
+          $pros[$key]['id'] = $value->toArray()['id'];
+
+          $pros[$key]['name'] = $value->toArray()['name'];
+
+          $pros[$key]['price'] = $value->toArray()['price'];
+
+          // $pros[$key]['quatity'] = $value->toArray()['quatity'];
+
+          $cre = $value->toArray()['created_at'];
+          $pros[$key]['created_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($cre));
+
+          $upd = $value->toArray()['updated_at'];
+          $pros[$key]['updated_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($upd));
+
+          $pros[$key]['href'] = "http://web-api.dev/api/products/".$pros[$key]['id'];
+
+          //var_dump($value->toArray());
+        }
         $cat_array = $cat->toArray();
         $created = strtotime($cat['created_at']);
         $updated = strtotime($cat['updated_at']);
@@ -96,15 +117,21 @@ class CategoryController extends Controller
         $created = date('Y-m-d\TH:i:s.u\Z', $created);
         $updated = date('Y-m-d\TH:i:s.u\Z', $updated);
 
-        $cat_array['created_at'] = $created;
-        $cat_array['updated_at'] = $updated;
-
         return response(array(
           'meta' => [
             'status' => 200,
-            'created_at' => $created
           ],
-          'category' => $cat_array,
+          'category' => [
+            'id' => $cat_array['id'],
+            'name' => $cat_array['name'],
+            'description' => $cat_array['description'],
+            'created_at' => $created,
+            'updated_at' => $updated
+            ],
+          'include' => [
+            'type' => 'product',
+            'data' => $pros
+            ],
           'links' => [
             'self' => "http://web-api.dev/api/categories/".$cat_array['id']
             ]

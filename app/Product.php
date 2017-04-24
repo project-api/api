@@ -4,18 +4,21 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class Product extends Model
 {
-  protected $table = 'categories';
+  protected $table = 'products';
   protected $primaryKey = 'id';
   protected $fillable = array(
     'name',
+    'price',
+    'quatity',
+    'cat_id',
     'description',
     'created_at',
     'updated_at'
   );
-  public function products()
+  public function category()
   {
-    return $this->hasMany('App\Product', 'cat_id');
+  	return $this->belongsTo('App\Category', 'cat_id');
   }
 }

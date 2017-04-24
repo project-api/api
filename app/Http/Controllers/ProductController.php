@@ -66,7 +66,29 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // Validate
+        $rules = array(
+          'name' => 'required|max:255|unique:products',
+          'quatity' => 'required|integer',
+          'price' => 'required|integer',
+          'cat_id' => 'required'
+        );
+        $validator = Validator::make($request->all(),$rules);
+        // if error Validate
+        if($validator->fails()) {
+          return response(array(
+            'error' => $validator,
+            'input' => $request,
+          ));
+        } else {
+          // Store
+          Product::create($request->all());
+          return response(array(
+            'status' => 201,
+            'message' => 'Created'
+          ));
+        }
+
     }
 
     /**
@@ -92,6 +114,9 @@ class ProductController extends Controller
       $cat_created = strtotime($product->category['created_at']);
       $cat_created = date('Y-m-d\TH:i:s.u\Z', $cat_created);
 
+      $cat_updated = strtotime($product->category['updated_at']);
+      $cat_updated = date('Y-m-d\TH:i:s.u\Z', $cat_updated);
+
       return response(array(
         'meta' => [
           'status' => 200,
@@ -101,7 +126,9 @@ class ProductController extends Controller
           'category' => [
             'id' => $product->category['id'],
             'name' => $product->category['name'],
+            'description' => $product->category['description'],
             'created_at' => $cat_created,
+            'updated_at' => $cat_updated,
             'href' => "http://web-api.dev/api/categories/".$product->category['id']
         ]],
         'links' => [
@@ -128,9 +155,40 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        //
+        // Validate
+        $rules = array(
+          'name' => 'required|max:255',
+          'quatity' => 'required|integer',
+          'price' => 'required|integer',
+          'cat_id' => 'required'
+        );
+        $validator = Validator::make($request->all(),$rules);
+        // if error Validate
+        if($validator->fails()) {
+          return response(array(
+            'error' => $validator,
+            'input' => $request,
+          ));
+        } else {
+          // Update the Product
+          $pro = Product::find($id);
+          $pro->name = $request->name;
+          $pro->quatity = $request->quatity;
+          $pro->price = $request->price;
+          $pro->cat_id = $request->cat_id;
+          if(isset($request->description)) {
+            $pro->description = $request->description;
+          }
+          $pro->updated_at = strtotime(date('Y-m-d H:i:s'));
+          $pro->save();
+          return response(array(
+            'status' => 201,
+            'message' => 'Created',
+            'updated_at' => date('Y-m-d\TH:i:s.u\Z')
+          ));
+        }
     }
 
     /**
@@ -139,8 +197,14 @@ class ProductController extends Controller
      * @param  \App\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Product $product)
+    public function destroy($id)
     {
-        //
+        // Delete
+        $pro = Product::find($id);
+        $pro->delete();
+        return response(array(
+          'status' => 200,
+          'message' => 'Deleted'
+        ));
     }
 }

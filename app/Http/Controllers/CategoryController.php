@@ -96,6 +96,10 @@ class CategoryController extends Controller
 
           $pros[$key]['name'] = $value->toArray()['name'];
 
+          $pros[$key]['price'] = $value->toArray()['price'];
+
+          // $pros[$key]['quatity'] = $value->toArray()['quatity'];
+
           $cre = $value->toArray()['created_at'];
           $pros[$key]['created_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($cre));
 
@@ -103,6 +107,7 @@ class CategoryController extends Controller
           $pros[$key]['updated_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($upd));
 
           $pros[$key]['href'] = "http://web-api.dev/api/products/".$pros[$key]['id'];
+
           //var_dump($value->toArray());
         }
         $cat_array = $cat->toArray();

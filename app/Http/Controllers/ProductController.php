@@ -6,9 +6,15 @@ use Validator;
 use App\Product;
 use App\Category;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
 class ProductController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('jwt.auth');
+        //$this->middleware('jwt.refresh');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -49,16 +55,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -69,26 +65,27 @@ class ProductController extends Controller
         // Validate
         $rules = array(
           'name' => 'required|max:255|unique:products',
-          'quatity' => 'required|integer',
-          'price' => 'required|integer',
+          'quatity' => 'required|integer|min:1',
+          'price' => 'required|integer|min:1',
           'cat_id' => 'required'
         );
         $validator = Validator::make($request->all(),$rules);
+
         // if error Validate
         if($validator->fails()) {
-          return response(array(
-            'error' => $validator,
-            'input' => $request,
-          ));
+          return response()->json([
+            'error' => [
+              'title' => 'Validation error',
+              'detail' => $validator->errors()
+            ]], 400);
         } else {
           // Store
           Product::create($request->all());
-          return response(array(
+          return response()->json(array(
             'status' => 201,
             'message' => 'Created'
-          ));
+          ), 201);
         }
-
     }
 
     /**
@@ -138,17 +135,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -167,10 +153,11 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(),$rules);
         // if error Validate
         if($validator->fails()) {
-          return response(array(
-            'error' => $validator,
-            'input' => $request,
-          ));
+          return response()->json([
+            'error' => [
+              'title' => 'Validation error',
+              'detail' => $validator->errors()
+            ]], 400);
         } else {
           // Update the Product
           $pro = Product::find($id);
@@ -183,11 +170,11 @@ class ProductController extends Controller
           }
           $pro->updated_at = strtotime(date('Y-m-d H:i:s'));
           $pro->save();
-          return response(array(
-            'status' => 201,
-            'message' => 'Created',
+          return response()->json(array(
+            'status' => 200,
+            'message' => 'OK',
             'updated_at' => date('Y-m-d\TH:i:s.u\Z')
-          ));
+          ), 200);
         }
     }
 
@@ -200,11 +187,15 @@ class ProductController extends Controller
     public function destroy($id)
     {
         // Delete
-        $pro = Product::find($id);
-        $pro->delete();
-        return response(array(
-          'status' => 200,
-          'message' => 'Deleted'
-        ));
+        try {
+          $pro = Product::find($id);
+          $pro->delete();
+          return response(array(
+            'status' => 200,
+            'message' => 'Deleted'
+          ));
+        } catch (Exception $e) {
+          return response()->json($e->getMessage(), 400);
+        }
     }
 }

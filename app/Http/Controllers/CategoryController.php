@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
+    public function __construct() {
+      $this->middleware('jwt.auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -65,17 +68,18 @@ class CategoryController extends Controller
 
       // if error
       if ($validator->fails()) {
-       return response(array(
-         'error' => $validator,
-         'input' => $request,
-       ));
+        return response()->json([
+          'error' => [
+            'title' => 'Validation error',
+            'detail' => $validator->errors()
+          ]], 400);
       } else {
         // Store the category
        Category::create($request->all());
-       return response(array(
+       return response()->json(array(
          'status' => 201,
          'message' => 'Created'
-       ));
+       ), 201);
       }
 
     }
@@ -91,25 +95,29 @@ class CategoryController extends Controller
         //GET
         $cat = Category::findOrFail($id);
         $products = $cat->products;
-        foreach ($products as $key => $value) {
-          $pros[$key]['id'] = $value->toArray()['id'];
+        $pros = [];
+        if(count($products) > 0) {
+          foreach ($products as $key => $value) {
+            $pros[$key]['id'] = $value->toArray()['id'];
 
-          $pros[$key]['name'] = $value->toArray()['name'];
+            $pros[$key]['name'] = $value->toArray()['name'];
 
-          $pros[$key]['price'] = $value->toArray()['price'];
+            $pros[$key]['price'] = $value->toArray()['price'];
 
-          // $pros[$key]['quatity'] = $value->toArray()['quatity'];
+            // $pros[$key]['quatity'] = $value->toArray()['quatity'];
 
-          $cre = $value->toArray()['created_at'];
-          $pros[$key]['created_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($cre));
+            $cre = $value->toArray()['created_at'];
+            $pros[$key]['created_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($cre));
 
-          $upd = $value->toArray()['updated_at'];
-          $pros[$key]['updated_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($upd));
+            $upd = $value->toArray()['updated_at'];
+            $pros[$key]['updated_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($upd));
 
-          $pros[$key]['href'] = "http://web-api.dev/api/products/".$pros[$key]['id'];
+            $pros[$key]['href'] = "http://web-api.dev/api/products/".$pros[$key]['id'];
 
-          //var_dump($value->toArray());
+            //var_dump($value->toArray());
+          }
         }
+
         $cat_array = $cat->toArray();
         $created = strtotime($cat['created_at']);
         $updated = strtotime($cat['updated_at']);
@@ -155,10 +163,11 @@ class CategoryController extends Controller
 
       // if error
       if ($validator->fails()) {
-       return response(array(
-         'error' => $validator,
-         'input' => $request,
-       ));
+        return response()->json([
+          'error' => [
+            'title' => 'Validation error',
+            'detail' => $validator->errors()
+          ]], 400);
       } else {
         // Update the category
        $cat = Category::find($id);
@@ -168,11 +177,11 @@ class CategoryController extends Controller
        }
        $cat->updated_at = strtotime(date('Y-m-d H:i:s'));
        $cat->save();
-       return response(array(
+       return response()->json(array(
          'status' => 200,
          'message' => 'OK',
          'updated_at' => date('Y-m-d\TH:i:s.u\Z')
-       ));
+       ), 200);
       }
     }
 
@@ -188,9 +197,9 @@ class CategoryController extends Controller
         $cat = Category::find($id);
         $cat->delete();
 
-        return response(array(
+        return response()->json(array(
           'status' => 200,
           'message' => 'Deleted'
-        ));
+        ), 200);
     }
 }

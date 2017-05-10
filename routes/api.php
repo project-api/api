@@ -22,3 +22,7 @@ Route::resource('categories', 'CategoryController',['except' =>['create', 'edit'
 
 // Set Route for Product
 Route::resource('products', 'ProductController',['except' =>['create', 'edit']]);
+
+Route::post('/login', 'Auth\LoginController@authenticate');
+
+Route::post('/register', 'Auth\RegisterController@register');

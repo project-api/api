@@ -6,6 +6,7 @@ use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -39,6 +40,11 @@ class RegisterController extends Controller
         $this->middleware('guest');
     }
 
+    protected function register(Request $request)
+    {
+      $inputs = $request->only('name', 'email', 'password');
+      return $this->create($inputs);
+    }
     /**
      * Get a validator for an incoming registration request.
      *

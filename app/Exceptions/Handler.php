@@ -67,8 +67,7 @@ class Handler extends ExceptionHandler
             $message = "Internal Server Error";
         }
         $data = array(
-          'error' => 'title' => $message,
-            //'detail' => $e->getMessage(),
+          'error' => $message,
           'status' => $statusCode,
           //'exeception' => get_class($e)
         );

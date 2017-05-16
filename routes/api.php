@@ -23,6 +23,12 @@ Route::resource('categories', 'CategoryController',['except' =>['create', 'edit'
 // Set Route for Product
 Route::resource('products', 'ProductController',['except' =>['create', 'edit']]);
 
+// Set Route for Login action
+
 Route::post('/login', 'Auth\LoginController@authenticate');
 
+// Set Route for register action
 Route::post('/register', 'Auth\RegisterController@register');
+
+// Set Route for logout action
+Route::post('/logout', 'Auth\LogoutController');

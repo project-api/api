@@ -21,7 +21,7 @@ class LogoutController extends Controller
         // something went wrong whilst attempting to encode the tokken
         return response()->json(['error' => 'could_not_get_token', 'status' => 500], 500);
       }
-      // // all good so return message
+      // all good so return message
       JWTAuth::invalidate($token);
       return response()->json([
         'status' => 200,

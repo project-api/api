@@ -15,12 +15,12 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        \Illuminate\Auth\AuthenticationException::class,
-        \Illuminate\Auth\Access\AuthorizationException::class,
+        // \Illuminate\Auth\AuthenticationException::class,
+        // \Illuminate\Auth\Access\AuthorizationException::class,
         \Symfony\Component\HttpKernel\Exception\HttpException::class,
-        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
-        \Illuminate\Session\TokenMismatchException::class,
-        \Illuminate\Validation\ValidationException::class,
+        // \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+        // \Illuminate\Session\TokenMismatchException::class,
+        // \Illuminate\Validation\ValidationException::class,
     ];
 
     /**
@@ -47,8 +47,11 @@ class Handler extends ExceptionHandler
      {
         $exception = FlattenException::create($e);
         $statusCode = $exception->getStatusCode($exception);
-        if(strpos(get_class($e), "ModelNotFoundException")>0){
+        if($e instanceof \Illuminate\Database\Eloquent\ModelNotFoundException){
           $statusCode = 404;
+        }
+        if(get_class($e) == "Symfony\\Component\\Debug\\Exception\\FatalThrowableError") {
+          $statusCode = 400;
         }
         switch($statusCode){
           case 404:
@@ -64,9 +67,10 @@ class Handler extends ExceptionHandler
             $message = "Internal Server Error";
         }
         $data = array(
-          'error' => $message,
+          'error' => 'title' => $message,
+            //'detail' => $e->getMessage(),
           'status' => $statusCode,
-          'exeception' => get_class($e)
+          //'exeception' => get_class($e)
         );
         return response()->json($data, $statusCode);
       }

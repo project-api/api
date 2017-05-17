@@ -53,6 +53,12 @@ class Handler extends ExceptionHandler
         if(get_class($e) == "Symfony\\Component\\Debug\\Exception\\FatalThrowableError") {
           $statusCode = 400;
         }
+        if($e instanceof \Tymon\JWTAuth\Exceptions\TokenBlacklistedException) {
+          $statusCode = 401;
+        }
+        if($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException) {
+          $statusCode = 401;
+        }
         switch($statusCode){
           case 404:
             $message =  "Not Found";
@@ -63,15 +69,31 @@ class Handler extends ExceptionHandler
           case 405:
             $message = "Method Not Allowed";
             break;
+          case 401:
+            $message = "Unauthorized";
+            break;
           default:
             $message = "Internal Server Error";
         }
-        $data = array(
-          'error' => 'title' => $message,
-            //'detail' => $e->getMessage(),
-          'status' => $statusCode,
-          //'exeception' => get_class($e)
-        );
+        if($e->getMessage() != "") {
+          $data = array(
+            'error' => [
+              'title' => $message,
+              'detail' => $e->getMessage(),
+              ],
+            'status' => $statusCode,
+            //'exeception' => get_class($e),
+          );
+        } else {
+          $data = array(
+            'error' => [
+              'title' => $message,
+              ],
+            'status' => $statusCode,
+            //'exeception' => get_class($e),
+          );
+        }
+
         return response()->json($data, $statusCode);
       }
 

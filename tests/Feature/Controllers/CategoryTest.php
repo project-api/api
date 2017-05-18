@@ -188,6 +188,44 @@ class CategoryTest extends TestCase
     ]);
   }
 
+  public function testShowByIDFailure()
+  {
+    // invalid token
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenInvalid]);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_invalid'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token not provided
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer']);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_not_provided'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token is expired
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenExpired]);
+    $res->assertStatus(401);
+    $res->assertExactJson([
+      'error' => 'token_expired'
+    ]);
+
+    //refresh application
+    $this->refreshApplication();
+
+    // not found ID
+    $token = $this->getToken();
+    $res = $this->get('/api/categories/0', ['HTTP_Authorization' => 'Bearer ' . $token]);
+    $res->assertStatus(404);
+  }
+
   public function testUpdateSuccess()
   {
     $token = $this->getToken();

@@ -15,12 +15,17 @@ class CategoryTest extends TestCase
 {
   use DatabaseTransactions;
 
+  protected $tokenExpired = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6XC9cL3dlYi1hcGkuZGV2XC9hcGlcL2xvZ2luIiwiaWF0IjoxNDk1MDg5NDg2LCJleHAiOjE0OTUwODk1NDYsIm5iZiI6MTQ5NTA4OTQ4NiwianRpIjoiS0kwV29wUFllS1lsV3ozdSJ9.eDl41r6g53daSq8Gme2PWcEz_Xbui945_Hb6h0kSy-M";
+
+  protected $tokenInvalid = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6XC9cL3dlYi1hcGkuZGV2XC9hcGlcL2xvZ2luIiwiaWF0IjoxNDk1MDg4NTg5LCJleHAiOjE0OTUwOTIxODksIm5iZiI6MTQ5NTA4ODU4OSwianRpIjoiQURMcDczODZEdXRDNUlQbyJ9.38_-xsIfvVZwLqlKIUIRez5fG56jxkv98-VaHbY9QYE1";
+
   public function getToken()
   {
     $credentials = ['email' => 'admin@example.com', 'password' => '123456'];
     $token = JWTAuth::attempt($credentials);
     return $token;
   }
+
   public function testIndexSuccess()
   {
     $token = $this->getToken();
@@ -55,6 +60,39 @@ class CategoryTest extends TestCase
     ]);
   }
 
+  public function testIndexFailure()
+  {
+    $uri = '/api/categories';
+    // invalid token
+
+    $res = $this->get($uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenInvalid]);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_invalid'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token not provided
+    $res = $this->get($uri, ['HTTP_Authorization' => 'Bearer ']);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_not_provided'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token expired
+
+    $res = $this->get($uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenExpired]);
+    $res->assertStatus(401);
+    $res->assertExactJson([
+      'error' => 'token_expired'
+    ]);
+  }
+
   public function testStoreSuccess()
   {
     $token = $this->getToken();
@@ -72,7 +110,7 @@ class CategoryTest extends TestCase
       'message' => 'Created',
     ]);
   }
-  public function testShowSuccess()
+  public function testShowByIDSuccess()
   {
     $token = $this->getToken();
     $this->assertNotNull($token);

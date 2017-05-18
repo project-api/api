@@ -16,7 +16,7 @@ class LogoutTest extends TestCase
       $res = $this->post($uri);
       $res->assertStatus(401);
       $res->assertExactJson([
-        'error' => 'invalid_credentials',
+        'error' => 'invalid_token',
         'status' => 401,
       ]);
       // wrong token
@@ -27,7 +27,7 @@ class LogoutTest extends TestCase
       ]);
       $res->assertStatus(401);
       $res->assertExactJson([
-        'error' => 'invalid_credentials',
+        'error' => 'invalid_token',
         'status' => 401,
       ]);
     }

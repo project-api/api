@@ -60,7 +60,7 @@ class LogoutTest extends TestCase
 
       $res->assertStatus(401)
           ->assertJsonFragment([
-            "error" => "Unauthorized",
+            "title" => "Unauthorized",
             "detail" => "The token has been blacklisted",
             "status" => 401,
           ]);

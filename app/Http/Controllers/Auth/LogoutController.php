@@ -14,7 +14,7 @@ class LogoutController extends Controller
       try {
         $token = JWTAuth::getToken();
         if(!$token) {
-          return response()->json(['error' => 'invalid_credentials', 'status' => 401], 401);
+          return response()->json(['error' => 'invalid_token', 'status' => 401], 401);
         }
 
       } catch (JWTException $e) {

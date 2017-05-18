@@ -49,8 +49,6 @@ class CategoryController extends Controller
             'last' => "http://web-api.dev/api/categories?page=".$cats->lastPage()
             ]
         ));
-
-
     }
 
     /**

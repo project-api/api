@@ -15,6 +15,8 @@ class CategoryTest extends TestCase
 {
   use DatabaseTransactions;
 
+  protected $uri = '/api/categories/';
+
   protected $tokenExpired = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6XC9cL3dlYi1hcGkuZGV2XC9hcGlcL2xvZ2luIiwiaWF0IjoxNDk1MDg5NDg2LCJleHAiOjE0OTUwODk1NDYsIm5iZiI6MTQ5NTA4OTQ4NiwianRpIjoiS0kwV29wUFllS1lsV3ozdSJ9.eDl41r6g53daSq8Gme2PWcEz_Xbui945_Hb6h0kSy-M";
 
   protected $tokenInvalid = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjEsImlzcyI6Imh0dHA6XC9cL3dlYi1hcGkuZGV2XC9hcGlcL2xvZ2luIiwiaWF0IjoxNDk1MDg4NTg5LCJleHAiOjE0OTUwOTIxODksIm5iZiI6MTQ5NTA4ODU4OSwianRpIjoiQURMcDczODZEdXRDNUlQbyJ9.38_-xsIfvVZwLqlKIUIRez5fG56jxkv98-VaHbY9QYE1";
@@ -31,7 +33,7 @@ class CategoryTest extends TestCase
     $token = $this->getToken();
     $this->assertNotNull($token);
 
-    $res = $this->get('/api/categories', ['HTTP_Authorization' => 'Bearer '.$token]);
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$token]);
     $res->assertStatus(200);
     $res->assertJsonStructure([
       'meta' => [
@@ -62,10 +64,10 @@ class CategoryTest extends TestCase
 
   public function testIndexFailure()
   {
-    $uri = '/api/categories';
+    
     // invalid token
 
-    $res = $this->get($uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenInvalid]);
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenInvalid]);
     $res->assertStatus(400);
     $res->assertExactJson([
       'error' => 'token_invalid'
@@ -75,7 +77,7 @@ class CategoryTest extends TestCase
     $this->refreshApplication();
 
     // token not provided
-    $res = $this->get($uri, ['HTTP_Authorization' => 'Bearer ']);
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer ']);
     $res->assertStatus(400);
     $res->assertExactJson([
       'error' => 'token_not_provided'
@@ -86,7 +88,7 @@ class CategoryTest extends TestCase
 
     // token expired
 
-    $res = $this->get($uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenExpired]);
+    $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenExpired]);
     $res->assertStatus(401);
     $res->assertExactJson([
       'error' => 'token_expired'
@@ -103,13 +105,60 @@ class CategoryTest extends TestCase
       'description' => 'Category Test',
       'updated_at' => null,
     ];
-    $res = $this->post('/api/categories', $credentials, ['HTTP_Authorization' => 'Bearer '.$token]);
+    $res = $this->post($this->uri, $credentials, ['HTTP_Authorization' => 'Bearer '.$token]);
     $res->assertStatus(201);
     $res->assertExactJson([
       'status' => 201,
       'message' => 'Created',
     ]);
   }
+
+  public function testStoreFailure()
+  {
+
+    // invalid token
+    $res = $this->post($this->uri, [], ['HTTP_Authorization' => 'Bearer '.$this->tokenInvalid]);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_invalid'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token not provided
+    $res = $this->post($this->uri, [], ['HTTP_Authorization' => 'Bearer']);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_not_provided'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token is expired
+    $res = $this->post($this->uri,[], ['HTTP_Authorization' => 'Bearer '.$this->tokenExpired]);
+    $res->assertStatus(401);
+    $res->assertExactJson([
+      'error' => 'token_expired'
+    ]);
+
+    //refresh application
+    $this->refreshApplication();
+
+    // invalid credentials
+    $token = $this->getToken();
+    $credentials = [
+      'name' => ''
+    ];
+    $res = $this->post($this->uri, $credentials, [
+      'HTTP_Authorization' => 'Bearer ' . $token
+    ]);
+    $result = json_decode($res->getContent());
+    $res->assertStatus(400);
+    $this->assertEquals('The name field is required.', $result->error->detail->name[0]);
+  }
+
   public function testShowByIDSuccess()
   {
     $token = $this->getToken();
@@ -127,7 +176,7 @@ class CategoryTest extends TestCase
     $cateLastest = Category::where('name', 'Drinks')->firstOrFail();
 
     // test show() method
-    $res = $this->get('/api/categories/'.$cateLastest->id,[
+    $res = $this->get($this->uri.$cateLastest->id,[
         'HTTP_Authorization' => 'Bearer '.$token
       ]);
 
@@ -160,7 +209,7 @@ class CategoryTest extends TestCase
       'name' => 'Hats',
       'description' => 'Modify Category'
     ];
-    $res = $this->put('/api/categories/'.$cateLastest->id, $data, [
+    $res = $this->put($this->uri.$cateLastest->id, $data, [
       'HTTP_Authorization' => 'Bearer '. $token
     ]);
 
@@ -188,7 +237,7 @@ class CategoryTest extends TestCase
     $cateLastest = Category::where('name', 'Hats')->firstOrFail();
 
     // test destroy() method
-    $res = $this->delete('/api/categories/'.$cateLastest->id, [], [
+    $res = $this->delete($this->uri.$cateLastest->id, [], [
       'HTTP_Authorization' => 'Bearer '. $token
     ]);
 

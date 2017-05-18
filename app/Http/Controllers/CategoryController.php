@@ -6,6 +6,8 @@ use Validator;
 use App\Category;
 use App\Product;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class CategoryController extends Controller
 {
@@ -32,6 +34,7 @@ class CategoryController extends Controller
           $cats_array['data'][$key]['updated_at'] = $updated;
         }
 
+        $token = JWTAuth::getToken();
         return response(array(
           'meta' => [
             'status' => 200,
@@ -42,11 +45,11 @@ class CategoryController extends Controller
           ],
           'categories' => $cats_array['data'],
           'links' => [
-            'self' => "http://web-api.dev/api/categories?page=".$cats->currentPage(),
-            'first' => $cats->url(1),
-            'prev' => $cats->previousPageUrl(),
-            'next' => $cats->nextPageUrl(),
-            'last' => "http://web-api.dev/api/categories?page=".$cats->lastPage()
+            'self' => "http://web-api.dev/api/categories?page=".$cats->currentPage()."&token=".$token,
+            'first' => $cats->url(1)."&token=".$token,
+            'prev' => $cats->previousPageUrl()."&token=".$token,
+            'next' => $cats->nextPageUrl()."&token=".$token,
+            'last' => "http://web-api.dev/api/categories?page=".$cats->lastPage()."&token=".$token,
             ]
         ));
     }

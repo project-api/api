@@ -346,4 +346,60 @@ class CategoryTest extends TestCase
       'message' => 'Deleted'
     ]);
   }
+
+  public function testDeleteFailure()
+  {
+    // initial data
+    $catg = factory(Category::class)->create([
+      'name' => 'Foods',
+      'created_at' => \Carbon\Carbon::now()->subMonth(),
+    ]);
+
+    $this->assertEquals(1, count($catg));
+
+    $cateLastest = Category::where('name', 'Foods')->firstOrFail();
+
+    // invalid token
+    $res = $this->delete($this->uri.$cateLastest->id,[],[
+      'HTTP_Authorization' => 'Bearer ' . $this->tokenInvalid
+    ]);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_invalid'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token not provided
+    $res = $this->delete($this->uri.$cateLastest->id, [], [
+      'HTTP_Authorization' => 'Bearer'
+    ]);
+    $res->assertStatus(400);
+    $res->assertExactJson([
+      'error' => 'token_not_provided'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // token is expired
+    $res = $this->delete($this->uri.$cateLastest->id, [], [
+      'HTTP_Authorization' => 'Bearer ' . $this->tokenExpired
+    ]);
+    $res->assertStatus(401);
+    $res->assertExactJson([
+      'error' => 'token_expired'
+    ]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // not found ID
+    $token = $this->getToken();
+    $res = $this->delete($this->uri.'0', [], [
+      'HTTP_Authorization' => 'Bearer ' . $token
+    ]);
+    $res->assertStatus(400);
+  }
 }

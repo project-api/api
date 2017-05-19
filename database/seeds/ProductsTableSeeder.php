@@ -2,6 +2,8 @@
 
 use Illuminate\Database\Seeder;
 
+use Carbon\Carbon;
+
 class ProductsTableSeeder extends Seeder
 {
     /**
@@ -17,8 +19,8 @@ class ProductsTableSeeder extends Seeder
           'quatity' => 20,
           'cat_id' => 1,
           'description' => 'T-Shirt 01',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s')
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('products')->insert([
@@ -27,8 +29,8 @@ class ProductsTableSeeder extends Seeder
           'quatity' => 20,
           'cat_id' => 1,
           'description' => 'T-Shirt 02',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s')
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('products')->insert([
@@ -37,8 +39,8 @@ class ProductsTableSeeder extends Seeder
           'quatity' => 20,
           'cat_id' => 1,
           'description' => 'T-Shirt 03',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s')
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('products')->insert([
@@ -47,8 +49,8 @@ class ProductsTableSeeder extends Seeder
           'quatity' => 20,
           'cat_id' => 2,
           'description' => 'Short 01',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s')
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('products')->insert([
@@ -57,8 +59,8 @@ class ProductsTableSeeder extends Seeder
           'quatity' => 20,
           'cat_id' => 2,
           'description' => 'Short 02',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s')
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
     }
 }

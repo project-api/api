@@ -26,13 +26,15 @@ class ProductController extends Controller
       $products = Product::orderBy('id', 'desc')->paginate(5);
       $products_array = $products->toArray();
       foreach ($products_array['data'] as $key => $value) {
-        $created = strtotime($value['created_at']);
-        $created = date('Y-m-d\TH:i:s.u\Z', $created);
-        $products_array['data'][$key]['created_at'] = $created;
+        $created_at = strtotime($value['created_at']);
+        $products_array['data'][$key]['created_at'] = date('Y-m-d\TH:i:s\Z',$created_at);
 
-        $updated = strtotime($value['updated_at']);
-        $updated = date('Y-m-d\TH:i:s.u\Z', $updated);
-        $products_array['data'][$key]['updated_at'] = $updated;
+        if($value['updated_at'] != null) {
+          $updated_at = strtotime($value['updated_at']);
+          $products_array['data'][$key]['updated_at'] = date('Y-m-d\TH:i:s\Z', $updated_at);
+        } else {
+          $products_array['data'][$key]['updated_at'] = null;
+        }
       }
 
       return response(array(
@@ -99,20 +101,13 @@ class ProductController extends Controller
       //GET
       $product = Product::findOrFail($id);
       $product_array = $product->toArray();
-      $created = strtotime($product['created_at']);
-      $updated = strtotime($product['updated_at']);
 
-      $created = date('Y-m-d\TH:i:s.u\Z', $created);
-      $updated = date('Y-m-d\TH:i:s.u\Z', $updated);
+      $product_array['created_at'] = date('Y-m-d\TH:i:s\Z', strtotime($product['created_at']));
+      $product_array['updated_at'] = date('Y-m-d\TH:i:s\Z', strtotime($product['updated_at']));
 
-      $product_array['created_at'] = $created;
-      $product_array['updated_at'] = $updated;
+      $cat_created = date('Y-m-d\TH:i:s\Z', strtotime($product->category['created_at']));
 
-      $cat_created = strtotime($product->category['created_at']);
-      $cat_created = date('Y-m-d\TH:i:s.u\Z', $cat_created);
-
-      $cat_updated = strtotime($product->category['updated_at']);
-      $cat_updated = date('Y-m-d\TH:i:s.u\Z', $cat_updated);
+      $cat_updated = date('Y-m-d\TH:i:s\Z', strtotime($product->category['updated_at']));
 
       return response(array(
         'meta' => [

@@ -66,7 +66,6 @@ class CategoryTest extends TestCase
   {
     
     // invalid token
-
     $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenInvalid]);
     $res->assertStatus(400);
     $res->assertExactJson([
@@ -87,7 +86,6 @@ class CategoryTest extends TestCase
     $this->refreshApplication();
 
     // token expired
-
     $res = $this->get($this->uri, ['HTTP_Authorization' => 'Bearer '.$this->tokenExpired]);
     $res->assertStatus(401);
     $res->assertExactJson([

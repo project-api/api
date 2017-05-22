@@ -99,7 +99,7 @@ class CategoryTest extends TestCase
   {
     $token = $this->getToken();
     $this->assertNotNull($token);
-
+    
     $credentials = [
       'name' => 'Category Test',
       'description' => 'Category Test',
@@ -157,6 +157,23 @@ class CategoryTest extends TestCase
     $result = json_decode($res->getContent());
     $res->assertStatus(400);
     $this->assertEquals('The name field is required.', $result->error->detail->name[0]);
+
+    // refreshing application
+    $this->refreshApplication();
+
+    // category name is already exists
+    $token = $this->getToken();
+    $credentials = [
+      'name' => 'Shorts',
+    ];
+    $res = $this->post($this->uri, $credentials, [
+      'HTTP_Authorization' => 'Bearer ' . $token 
+    ]);
+    $result = json_decode($res->getContent());
+    $res->assertStatus(400);
+    $this->assertEquals(
+      'The name has already been taken.', $result->error->detail->name[0]
+    );
   }
 
   public function testShowByIDSuccess()

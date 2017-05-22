@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Carbon\Carbon;
+
 
 class CategoriesTableSeeder extends Seeder
 {
@@ -11,32 +13,34 @@ class CategoriesTableSeeder extends Seeder
      */
     public function run()
     {
+
+
         DB::table('categories')->insert([
           'name' => 'T-Shirts',
           'description' => 'Category Fashion: T-Shirts',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s'),
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('categories')->insert([
           'name' => 'Shorts',
           'description' => 'Category Fashion: Shorts',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s'),
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('categories')->insert([
           'name' => 'Jeans',
           'description' => 'Category Fashion: Jeans',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s'),
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
 
         DB::table('categories')->insert([
           'name' => 'Pants',
           'description' => 'Category Fashion: Pants',
-          'created_at' => date('Y-m-d h:i:s'),
-          'updated_at' => date('Y-m-d h:i:s'),
+          'created_at' => Carbon::now(new DateTimeZone('Europe/London')),
+          'updated_at' => null,
         ]);
     }
 }

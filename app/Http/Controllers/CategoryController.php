@@ -21,37 +21,40 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //GET
-        $cats = Category::paginate(5);
-        $cats_array = $cats->toArray();
-        foreach ($cats_array['data'] as $key => $value) {
-          $created = strtotime($value['created_at']);
-          $created = date('Y-m-d\TH:i:s.u\Z', $created);
-          $cats_array['data'][$key]['created_at'] = $created;
+      //GET
+      $cats = Category::paginate(5);
+      $cats_array = $cats->toArray();
+      foreach ($cats_array['data'] as $key => $value) {
+        $created_at = strtotime($value['created_at']);
+        $cats_array['data'][$key]['created_at'] = date('Y-m-d\TH:i:s\Z', $created_at);
 
-          $updated = strtotime($value['updated_at']);
-          $updated = date('Y-m-d\TH:i:s.u\Z', $updated);
-          $cats_array['data'][$key]['updated_at'] = $updated;
+        if($value['updated_at'] != null) {
+          $updated_at = strtotime($value['updated_at']);
+          $cats_array['data'][$key]['updated_at'] = date('Y-m-d\TH:i:s\Z', $updated_at);
+        } else {
+          $cats_array['data'][$key]['updated_at'] = null;
         }
+      }
 
-        $token = JWTAuth::getToken();
-        return response(array(
-          'meta' => [
-            'status' => 200,
-            'total' => $cats->total(),
-            'total-pages' => round($cats->total()/$cats->perPage()),
-            'per-page' => $cats->perPage(),
-            'count' => $cats->count()
-          ],
-          'categories' => $cats_array['data'],
-          'links' => [
-            'self' => "http://web-api.dev/api/categories?page=".$cats->currentPage()."&token=".$token,
-            'first' => $cats->url(1)."&token=".$token,
-            'prev' => $cats->previousPageUrl()."&token=".$token,
-            'next' => $cats->nextPageUrl()."&token=".$token,
-            'last' => "http://web-api.dev/api/categories?page=".$cats->lastPage()."&token=".$token,
-            ]
-        ));
+      $token = JWTAuth::getToken();
+
+      return response(array(
+        'meta' => [
+          'status' => 200,
+          'total' => $cats->total(),
+          'total-pages' => round($cats->total()/$cats->perPage()),
+          'per-page' => $cats->perPage(),
+          'count' => $cats->count()
+        ],
+        'categories' => $cats_array['data'],
+        'links' => [
+          'self' => "http://web-api.dev/api/categories?page=".$cats->currentPage()."&token=".$token,
+          'first' => $cats->url(1)."&token=".$token,
+          'prev' => $cats->previousPageUrl()."&token=".$token,
+          'next' => $cats->nextPageUrl()."&token=".$token,
+          'last' => "http://web-api.dev/api/categories?page=".$cats->lastPage()."&token=".$token,
+          ]
+      ));
     }
 
     /**
@@ -108,14 +111,16 @@ class CategoryController extends Controller
             // $pros[$key]['quatity'] = $value->toArray()['quatity'];
 
             $cre = $value->toArray()['created_at'];
-            $pros[$key]['created_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($cre));
+            $pros[$key]['created_at'] = date('Y-m-d\TH:i:s\Z', strtotime($cre));
 
             $upd = $value->toArray()['updated_at'];
-            $pros[$key]['updated_at'] = date('Y-m-d\TH:i:s.u\Z', strtotime($upd));
+            if($upd != null) {
+              $pros[$key]['updated_at'] = date('Y-m-d\TH:i:s\Z', strtotime($upd));
+            } else {
+              $pros[$key]['updated_at'] = null;
+            }
 
             $pros[$key]['href'] = "http://web-api.dev/api/products/".$pros[$key]['id'];
-
-            //var_dump($value->toArray());
           }
         }
 
@@ -123,8 +128,12 @@ class CategoryController extends Controller
         $created = strtotime($cat['created_at']);
         $updated = strtotime($cat['updated_at']);
 
-        $created = date('Y-m-d\TH:i:s.u\Z', $created);
-        $updated = date('Y-m-d\TH:i:s.u\Z', $updated);
+        $created = date('Y-m-d\TH:i:s\Z', $created);
+        if($updated != null) {
+          $updated = date('Y-m-d\TH:i:s\Z', $updated);
+        } else {
+          $updated = null;
+        }
 
         return response(array(
           'meta' => [
